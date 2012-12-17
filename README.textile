@@ -20,56 +20,28 @@ Infinispan should also scale out horizontally very well as Maps can be "sharded"
 
 Infinispan requires nine JARs to run an embedded instance, which is kind of the opposite of "impressive". Maven makes that a non-issue if you're deploying as a unified JAR, but if you intend to run as a more traditional file-based Ruby project you have to decide wether you feel like copying dependencies at deploy, or committing all those JARs to your repository.
 
-h3. Project Structure
-
-As a JRuby example this demonstrates a few things:
-
-* We have dependency entries for Hazelcast and Infinispan in our pom.xml
-* The jruby-complete JAR is bundled in, so all you need is Java (and Maven)
-* src/main/ruby/jar-bootstrap.rb is present, so JRuby will automatically use it as the entry-point
-* When you package everything up into a unified JAR, you don't need to require separate JARs (it's kind of like unpacking a GEM into your project)
-* java_import will bring those classes into scope for convenient usage
-* Actually using these two different projects is trivial; once you've instantiated a Map/Hash, the interface is the same as a regular Ruby Hash
-
-h3. Notes on Serialization
-
-Infinispan seems to handle serializing "primitives", Arrays and Hashes just fine. Hazelcast throws errors serializing Ruby Hashes. They have to be converted to Java HashMaps by wrapping them like so:
-
-bc. cache['foo'] = java.util.HashMap.new({ 'bar' => 'baz' })
-
-Hazelcast also seems to have trouble serializing Ruby Arrays, at least when used as keys, so they have to be converted to Java Arrays first:
-
-bc. cache[ [1293624000000, "67bb5d5f2fddbea2bf24a29a5f00aa56"].to_java ] = "Some document..."
-
-Other than that, they seem about the same. I haven't tested either with serialized Ruby objects, but that's not my use-case anyway.
-
 h2. Usage
 
-From the root of the project run:
+You can just start it up:
 
-bc. mvn clean install
-
-Then you can just start it up:
-
-bc. java -jar target/map-benchmarks-1.0.0.jar
+bc. ./gradlew clean test -i
 
 h2. Results
 
-On a Core 2 Duo laptop running at 2.66GHz these are my results:
+Running at 2 GHz Intel Core i7 these are my results:
 
-bc.. Rehearsal --------------------------------------------------
-Hash:set         0.280000   0.010000   0.290000 (  0.223000)
-Hazelcast:set   34.890000   2.200000  37.090000 ( 36.979000)
-Infinispan:set   0.900000   0.030000   0.930000 (  0.628000)
-Hash:get         0.280000   0.010000   0.290000 (  0.176000)
-Hazelcast:get   31.400000   1.280000  32.680000 ( 32.997000)
-Infinispan:get   0.230000   0.010000   0.240000 (  0.147000)
----------------------------------------- total: 71.520000sec
-
-                     user     system      total        real
-Hash:set         0.010000   0.000000   0.010000 (  0.011000)
-Hazelcast:set   60.140000   2.550000  62.690000 ( 63.818000)
-Infinispan:set   0.110000   0.010000   0.120000 (  0.098000)
-Hash:get         0.010000   0.000000   0.010000 (  0.007000)
-Hazelcast:get   30.130000   1.180000  31.310000 ( 31.637000)
-Infinispan:get   0.020000   0.000000   0.020000 (  0.018000)
+|-------------------|----|-----------|-----------|-----------|------------|
+| Measurement Point |  # |  Average  |    Min    |    Max    |    Total   |
+|-------------------|----|-----------|-----------|-----------|------------|
+| HashMap:read      | 10 |     5,130 |     1,554 |    25,129 |     51,297 |
+|-------------------|----|-----------|-----------|-----------|------------|
+| HashMap:write     | 10 |     6,979 |     2,232 |    24,745 |     69,791 |
+|-------------------|----|-----------|-----------|-----------|------------|
+| Hazelcast:read    | 10 |   285,971 |   250,889 |   497,032 |  2.859,714 |
+|-------------------|----|-----------|-----------|-----------|------------|
+| Hazelcast:write   | 10 | 1.694,217 | 1.519,539 | 2.737,081 | 16.942,170 |
+|-------------------|----|-----------|-----------|-----------|------------|
+| Infinispan:read   | 10 |    72,940 |    55,263 |   159,787 |    729,405 |
+|-------------------|----|-----------|-----------|-----------|------------|
+| Infinispan:write  | 10 |   186,443 |   117,869 |   644,130 |  1.864,429 |
+|-------------------|----|-----------|-----------|-----------|------------|
