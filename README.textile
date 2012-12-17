@@ -14,7 +14,7 @@ Hazelcast only requires a single JAR, which makes it very easy to get started wi
 
 h4. Infinispan
 
-Intended to be a straight up cache, compatible with the MemCache API. It's data set is in memory, supports locality (Hazelcast's NearCache) and a more advanced eviction algorithm (LIRS; no idea how much this contributes to overall performance really). For the embedded instance in this benchmark it's only about half the speed of a JRuby Hash, which is very impressive.
+Intended to be a straight up cache, compatible with the MemCache API. It's data set is in memory, supports locality (Hazelcast's NearCache) and a more advanced eviction algorithm (LIRS; no idea how much this contributes to overall performance really).
 
 Infinispan should also scale out horizontally very well as Maps can be "sharded", nodes can be rack aware (through configuration) and keys locally cached on access.
 
