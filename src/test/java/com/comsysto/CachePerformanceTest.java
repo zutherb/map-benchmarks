@@ -8,6 +8,8 @@ import etm.core.configuration.EtmManager;
 import etm.core.monitor.EtmMonitor;
 import etm.core.monitor.EtmPoint;
 import etm.core.renderer.SimpleTextRenderer;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 import org.infinispan.manager.DefaultCacheManager;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,11 +30,12 @@ public class CachePerformanceTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CachePerformanceTest.class);
     private static final int SIZE = 100000;
-    private static final int TEST_RUNS = 5;
+    private static final int TEST_RUNS = 20;
 
     private static Map<Integer, Integer> javaMap;
     private static HazelcastInstance hazelcastInstance;
     private static DefaultCacheManager infinispanInstance;
+    private static CacheManager ehCacheManager;
 
     @BeforeClass
     public static void setup() {
@@ -48,6 +51,8 @@ public class CachePerformanceTest {
 
         infinispanInstance = new DefaultCacheManager();
         infinispanInstance.getCache();
+
+        ehCacheManager =  CacheManager.getInstance();
 
         BasicEtmConfigurator.configure();
         monitor.start();
@@ -66,6 +71,7 @@ public class CachePerformanceTest {
 
     private static void measure() {
 
+        logger.info("Run Hash-Map Benchmark");
         new Runnable(CacheType.HashMap) {
             @Override
             protected void read(int i) {
@@ -78,6 +84,20 @@ public class CachePerformanceTest {
             }
         }.run();
 
+        logger.info("Run EhCache Benchmark");
+        new Runnable(CacheType.EhCache) {
+            @Override
+            protected void read(int i) {
+                ehCacheManager.getCache("performance").get(i);
+            }
+
+            @Override
+            protected void write(int i) {
+                ehCacheManager.getCache("performance").put(new Element(i, i));
+            }
+        }.run();
+
+        logger.info("Run Hazelcast Benchmark");
         new Runnable(CacheType.Hazelcast) {
             @Override
             protected void read(int i) {
@@ -90,6 +110,7 @@ public class CachePerformanceTest {
             }
         }.run();
 
+        logger.info("Run Infinispan Benchmark");
         new Runnable(CacheType.Infinispan) {
             @Override
             protected void read(int i) {
@@ -146,5 +167,5 @@ public class CachePerformanceTest {
 
 
 
-    private static enum CacheType {HashMap, Hazelcast,Infinispan}
+    private static enum CacheType {HashMap, EhCache, Hazelcast,Infinispan}
 }

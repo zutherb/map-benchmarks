@@ -1,8 +1,11 @@
-h1. Hash vs Hazelcast vs Infinispan
+h1. Hash vs EhCache vs Hazelcast vs Infinispan
 
 h2. Overview
 
-This is just a simple benchmark to compare "Hazelcast":http://www.hazelcast.com and "Infinispan":http://www.jboss.org/infinispan/ performance (with defaults), and includes a regular Hash object as a baseline.
+This is just a simple benchmark to compare "Hazelcast":http://www.hazelcast.com, "EhCache":http://ehcache.org/ and "Infinispan":http://www.jboss.org/infinispan/ performance (with defaults), and includes a regular Hash object as a baseline.
+
+The benchmark contains of two part that are repeated for the several cache implementations multiple time.
+Data is put in the cache during the first part and data is read from the cache during the second part of the benchmark.
 
 h2. Usage
 
@@ -15,9 +18,11 @@ h2. Results
 Running at 2 GHz Intel Core i7 these are my results:
 
 | Measurement Point |  # |  Average  |    Min    |    Max    |    Total   |
-| HashMap:read      | 10 |     5,130 |     1,554 |    25,129 |     51,297 |
-| HashMap:write     | 10 |     6,979 |     2,232 |    24,745 |     69,791 |
-| Hazelcast:read    | 10 |   285,971 |   250,889 |   497,032 |  2.859,714 |
-| Hazelcast:write   | 10 | 1.694,217 | 1.519,539 | 2.737,081 | 16.942,170 |
-| Infinispan:read   | 10 |    72,940 |    55,263 |   159,787 |    729,405 |
-| Infinispan:write  | 10 |   186,443 |   117,869 |   644,130 |  1.864,429 |
+| EhCache:read      | 20 |   444,621 |   382,911 | 1.109,655 |  8.892,425 |
+| EhCache:write     | 20 | 2.641,224 |   417,761 | 3.121,908 | 52.824,478 |
+| HashMap:read      | 20 |     2,665 |     1,761 |    10,329 |     53,301 |
+| HashMap:write     | 20 |     5,345 |     3,477 |    23,312 |    106,902 |
+| Hazelcast:read    | 20 |   190,533 |   179,639 |   257,074 |  3.810,665 |
+| Hazelcast:write   | 20 | 1.599,425 | 1.527,270 | 1.985,163 | 31.988,491 |
+| Infinispan:read   | 20 |    34,316 |    30,118 |    82,001 |    686,322 |
+| Infinispan:write  | 20 |    85,961 |    69,735 |   237,438 |  1.719,226 |
